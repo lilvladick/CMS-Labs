@@ -1,3 +1,4 @@
+import base64
 import io
 import pandas as pd
 import numpy as np
@@ -52,6 +53,7 @@ def get_trends(data):
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
     buf.seek(0)
-    plt.close(fig)
+    img_b64 = base64.b64encode(buf.read()).decode('utf-8')  # Преобразуем в base64
+    buf.close()
 
-    return buf 
+    return {"image_url": f"data:image/png;base64,{img_b64}"}  # Просто строка Base64 без вложенности
