@@ -12,20 +12,18 @@ from io import StringIO
 class TestGetTrends(unittest.TestCase):
 
     def setUp(self):
-        self.test_data = StringIO("""
-            date,value
-            01.01.2020,10
-            02.01.2020,12
-            03.01.2020,15
-            04.01.2020,20
-            05.01.2020,25
-            """
-        )
+        self.test_data = StringIO("""date,value
+01.01.2020,10
+02.01.2020,12
+03.01.2020,15
+04.01.2020,20
+05.01.2020,25
+""")
 
     def test_trends(self):
         result = get_trends(self.test_data)
-        
         self.assertTrue(result["image_url"].startswith("data:image/png;base64,"))
+
 
 class TestMaximizeProfit(unittest.TestCase):
 
