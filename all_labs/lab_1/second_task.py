@@ -53,7 +53,7 @@ def get_trends(data):
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
     buf.seek(0)
-    img_b64 = base64.b64encode(buf.read()).decode('utf-8')  # Преобразуем в base64
+    img_b64 = base64.b64encode(buf.read()).decode('utf-8')
     buf.close()
 
-    return {"image_url": f"data:image/png;base64,{img_b64}"}  # Просто строка Base64 без вложенности
+    return {"image_url": f"data:image/png;base64,{img_b64}"}
