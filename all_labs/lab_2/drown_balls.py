@@ -28,12 +28,12 @@ def drown_balls(json_params: str):
     rho_ball = params.get("rho_ball", 1100)
     rho_liquid = params.get("rho_liquid", 680)
     mu = params.get("mu", 0.0006)
-    h = params.get("h", 1.5)
+    h = params.get("h", 10.5)
 
     V = (4/3) * np.pi * r**3
     m = rho_ball * V
 
-    T = 10
+    T = 15
     dt = 0.01
     N = int(T / dt)
 
@@ -82,7 +82,7 @@ if __name__ == '__main__':
         "rho_ball": 1100,
         "rho_liquid": 680,
         "mu": 0.0006,
-        "h": 1.5
+        "h": 10.5
     })
 
     print(drown_balls(test_json))

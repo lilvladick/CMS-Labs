@@ -46,7 +46,7 @@ const Lab2 = () => {
           rho_ball: material.rho,
           rho_liquid: liquid.rho,
           mu: liquid.mu,
-          h: 1.5
+          h: 10.5
         })
       });
 
