@@ -15,16 +15,19 @@ y_max = f(x_max)
 print(f"Минимум: x = {x_min:.4f}, y = {y_min:.4f}")
 print(f"Максимум: x = {x_max:.4f}, y = {y_max:.4f}")
 
-x = np.linspace(x_min, x_max, 1000)
-y = [f(x_i) for x_i in x]
+x = np.linspace(-100, 100, 500)
+x_filtered = [x for x in x if abs(1 + np.sin(x)) > 1e-3]
+y = [f(x_i) for x_i in x_filtered]
 
-plt.figure(figsize=(12, 6))
-plt.plot(x, y)
-plt.scatter([x_min, x_max], [y_min, y_max], color='red', s=100, zorder=5)
+plt.figure(figsize=(10, 6))
+plt.plot(x_filtered, y)
 plt.xlabel('x')
 plt.ylabel('y')
 plt.grid(True)
 plt.show()
+
+plt.ylim(-10, 25)
+plt.xlim(-25, 50)
 
 period = 2 * math.pi
 lower_bound = 3 * math.pi / 2

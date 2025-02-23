@@ -41,8 +41,8 @@ def classify_critical_point(cp):
     else:
         return "Локальный максимум"
 
-start_range = -10
-end_range = 10
+start_range = -100
+end_range = 100
 
 critical_points = find_critical_points(start_range, end_range)
 critical_points.sort()
