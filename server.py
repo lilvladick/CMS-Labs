@@ -3,6 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from all_labs.lab_1.second_task import get_trends
 from all_labs.lab_1.first_task import maximize_profit
 from all_labs.lab_2.drown_balls import drown_balls
+from all_labs.lab_3.golden_selection import golden_selection
+from all_labs.lab_3.newton import newton
+from fastapi.responses import JSONResponse
 import json
 
 app = FastAPI()
@@ -30,6 +33,16 @@ async def maximize_profit_endpoint(data: dict):
 @app.post("/lab_2/drown_balls/")
 async def drown_balls_endpoint(data: dict):
     return {"image_url": drown_balls(json.dumps(data))}
+
+@app.get("/lab_3/golden_selection/")
+async def extrema_endpoint():
+    result = golden_selection()
+    return JSONResponse(content=result)
+
+@app.get("/lab_3/newton/")
+async def analyze_endpoint():
+    result = newton()
+    return JSONResponse(content=result)
 
 if __name__ == "__main__":
     import uvicorn

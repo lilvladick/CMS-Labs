@@ -2,37 +2,46 @@ import math
 import numpy as np
 from scipy.optimize import golden
 import matplotlib.pyplot as plt
+from all_labs.lab_3.my_func import f
+from io import BytesIO
+import base64
 
-def f(x):
-    return x / (1 + math.sin(x))
+def golden_selection():
+    x_min = golden(f, brack=(-20, 20))
+    y_min = f(x_min)
 
-x_min = golden(f, brack=(-10, 10))
-y_min = f(x_min)
+    x_max = golden(lambda x: -f(x), brack=(-20, 20 ))
+    y_max = f(x_max)
 
-x_max = golden(lambda x: -f(x), brack=(-10, 10))
-y_max = f(x_max)
+    x = np.linspace(-100, 100, 500)
+    x_filtered = [x_i for x_i in x if abs(1 + np.sin(x_i)) > 1e-3]
+    y = [f(x_i) for x_i in x_filtered]
 
-print(f"Минимум: x = {x_min:.4f}, y = {y_min:.4f}")
-print(f"Максимум: x = {x_max:.4f}, y = {y_max:.4f}")
+    plt.figure(figsize=(10, 6))
+    plt.plot(x_filtered, y, 'b-', label='f(x)')
+    plt.plot(x_min, y_min, 'go', label="Локальный минимум")
+    plt.plot(x_max, y_max, 'ro', label="Локальный максимум")
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.grid(True)
+    plt.legend()
+    plt.xlim(-25, 50)
+    plt.ylim(-10, 25)
 
-x = np.linspace(-100, 100, 500)
-x_filtered = [x for x in x if abs(1 + np.sin(x)) > 1e-3]
-y = [f(x_i) for x_i in x_filtered]
+    buf = BytesIO()
+    plt.savefig(buf, format="png")
+    buf.seek(0)
+    img_base64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+    plt.close()
 
-plt.figure(figsize=(10, 6))
-plt.plot(x_filtered, y)
-plt.xlabel('x')
-plt.ylabel('y')
-plt.grid(True)
-plt.show()
+    lower_bound = 3 * math.pi / 2
+    upper_bound = 7 * math.pi / 2
 
-plt.ylim(-10, 25)
-plt.xlim(-25, 50)
+    extrema_data = {
+        "min": {"x": round(x_min, 4), "y": round(y_min, 4)},
+        "max": {"x": round(x_max, 4), "y": round(y_max, 4)},
+        "extrema_interval": f"({round(lower_bound, 4)} + 2pin, {round(upper_bound, 4)} + 2pin), n - целое число",
+        "image": img_base64
+    }
 
-period = 2 * math.pi
-lower_bound = 3 * math.pi / 2
-upper_bound = 7 * math.pi / 2
-
-print("Интервал существования экстремумов:")
-print(f"({lower_bound:.4f} + 2πn, {upper_bound:.4f} + 2πn), где n - целое число")
-print(f"Это соответствует интервалу длиной {period:.4f}")
+    return extrema_data
