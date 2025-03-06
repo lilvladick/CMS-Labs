@@ -1,12 +1,15 @@
-from fastapi import FastAPI,File, UploadFile
+import threading
+import asyncio
+import json
+from fastapi import FastAPI, File, UploadFile, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from all_labs.lab_1.second_task import get_trends
 from all_labs.lab_1.first_task import maximize_profit
 from all_labs.lab_2.drown_balls import drown_balls
-from all_labs.lab_3.golden_selection import golden_selection
+from all_labs.lab_3.golden_selection import golden_selection_scipy
 from all_labs.lab_3.newton import newton
-from fastapi.responses import JSONResponse
-import json
+from all_labs.lab_5.telephone_line import TelephoneLine
 
 app = FastAPI()
 
@@ -17,6 +20,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
+simulation_instance = None
 
 @app.post("/lab_1/get_trends/")
 async def trends_endpoint(file: UploadFile = File(...)):
@@ -36,13 +41,44 @@ async def drown_balls_endpoint(data: dict):
 
 @app.get("/lab_3/golden_selection/")
 async def extrema_endpoint():
-    result = golden_selection()
+    result = golden_selection_scipy()
     return JSONResponse(content=result)
 
 @app.get("/lab_3/newton/")
 async def analyze_endpoint():
     result = newton()
     return JSONResponse(content=result)
+
+
+@app.post("/lab_5/telephone_line_simulation/")
+async def phone_simulation_endpoint():
+    """
+    Запуск симуляции телефонной линии.
+    Тестовые данные: sim_time=10000 минут, arrival_rate=0.95 вызов/мин, service_time=1 мин.
+    """
+    global simulation_instance
+    simulation_instance = TelephoneLine(sim_time=10000, arrival_rate=0.95, service_time=1.0, seed=42)
+    thread = threading.Thread(target=simulation_instance.run)
+    thread.start()
+    return {"message": "Phone simulation started"}
+
+@app.websocket("/ws/telephone_line_simulation")
+async def websocket_phone_simulation(websocket: WebSocket):
+    """
+    Веб-сокет, отправляющий клиенту обновления состояния симуляции.
+    Клиент получает данные каждые 0.5 секунды.
+    """
+    await websocket.accept()
+    try:
+        while True:
+            if simulation_instance is not None:
+                data = simulation_instance.get_state()
+                await websocket.send_json(data)
+                if data.get("finished"):
+                    break
+            await asyncio.sleep(0.5)
+    except Exception as e:
+        print("WebSocket connection closed", e)
 
 if __name__ == "__main__":
     import uvicorn
