@@ -10,6 +10,7 @@ from all_labs.lab_2.drown_balls import drown_balls
 from all_labs.lab_3.golden_selection import golden_selection_scipy
 from all_labs.lab_3.newton import newton
 from all_labs.lab_5.telephone_line import TelephoneLine
+from all_labs.lab_5.service_stantion import ServiceStation
 
 app = FastAPI()
 
@@ -52,21 +53,40 @@ async def analyze_endpoint():
 
 @app.post("/lab_5/telephone_line_simulation/")
 async def phone_simulation_endpoint():
-    """
-    Запуск симуляции телефонной линии.
-    Тестовые данные: sim_time=10000 минут, arrival_rate=0.95 вызов/мин, service_time=1 мин.
-    """
     global simulation_instance
-    simulation_instance = TelephoneLine(sim_time=10000, arrival_rate=0.95, service_time=1.0, seed=42)
+    
+    simulation_instance = TelephoneLine(sim_time=1000000, arrival_rate=0.95, service_time=1.0, seed=42)
+    
     thread = threading.Thread(target=simulation_instance.run)
     thread.start()
-    return {"message": "Phone simulation started"}
+    
+    return {"message": "Telephone simulation started"}
+
+
+@app.post("/lab_5/service_station_simulation")
+async def service_station_endpoint(request: dict):
+    """Запускает симуляцию и возвращает начальные результаты"""
+    global simulation_instance
+
+    sim_time_hours = 1000
+    arrival_rate = 0.95
+    service_time = 1.0
+    n_posts = 3
+    queue_limit = 5 if request.get("queue_limit") == "true" else None
+
+    simulation_instance = ServiceStation(sim_time_hours, arrival_rate, service_time, n_posts, queue_limit=queue_limit)
+    
+    thread = threading.Thread(target=simulation_instance.run_simulation)
+    thread.start()
+
+    return {"message": "Simulation started"}
+
 
 @app.websocket("/ws/telephone_line_simulation")
 async def websocket_phone_simulation(websocket: WebSocket):
     """
     Веб-сокет, отправляющий клиенту обновления состояния симуляции.
-    Клиент получает данные каждые 0.5 секунды.
+    Клиент получает данные каждые 0.1 секунды.
     """
     await websocket.accept()
     try:
@@ -76,7 +96,25 @@ async def websocket_phone_simulation(websocket: WebSocket):
                 await websocket.send_json(data)
                 if data.get("finished"):
                     break
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(0.1)
+    except Exception as e:
+        print("WebSocket connection closed", e)
+        
+@app.websocket("/ws/service_station_simulation")
+async def websocket_service_station_simulation(websocket: WebSocket):
+    """
+    Веб-сокет, отправляющий клиенту обновления состояния симуляции.
+    Клиент получает данные каждые 0.1 секунды.
+    """
+    await websocket.accept()
+    try:
+        while True:
+            if simulation_instance is not None:
+                data = simulation_instance.get_state()
+                await websocket.send_json(data)
+                if data.get("total") == data.get("served") + data.get("lost"): 
+                    break
+            await asyncio.sleep(0.1)
     except Exception as e:
         print("WebSocket connection closed", e)
 
