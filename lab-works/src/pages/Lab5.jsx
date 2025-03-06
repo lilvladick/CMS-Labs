@@ -224,7 +224,7 @@ function App() {
           )}
           <div>
             <img
-              src="https://media.tenor.com/images/2d2e9c1f9a351bb68b9ecfda1f8810a0/tenor.gif"
+              src="https://media1.tenor.com/m/6HWL56jeQcgAAAAC/grease-monkey-monkey.gif"
               alt="service station"
             />
           </div>
