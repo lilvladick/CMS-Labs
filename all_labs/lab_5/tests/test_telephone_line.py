@@ -5,8 +5,7 @@ sys.path.append(str(Path(__file__).resolve().parents[3]))
 
 import unittest
 import simpy
-import random
-from all_labs.lab_5.telephone_line import TelephoneLine
+from all_labs.lab_5.simpy_version.telephone_line import TelephoneLine
 
 
 class TestTelephoneLine(unittest.TestCase):

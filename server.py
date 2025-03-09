@@ -9,8 +9,8 @@ from all_labs.lab_1.first_task import maximize_profit
 from all_labs.lab_2.drown_balls import drown_balls
 from all_labs.lab_3.golden_selection import golden_selection_scipy
 from all_labs.lab_3.newton import newton
-from all_labs.lab_5.telephone_line import TelephoneLine
-from all_labs.lab_5.service_stantion import ServiceStation
+from all_labs.lab_5.simpy_version.telephone_line import TelephoneLine
+from all_labs.lab_5.simpy_version.service_stantion import ServiceStation
 
 app = FastAPI()
 

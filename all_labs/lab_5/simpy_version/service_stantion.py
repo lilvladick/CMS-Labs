@@ -3,6 +3,16 @@ import simpy
 
 class ServiceStation:
     def __init__(self, sim_time_hours, arrival_rate, service_time, n_posts, queue_limit=None, seed=42):
+        """
+        Инициализация симуляции автосервиса.
+
+        :param sim_time_hours: Время симуляции в часах
+        :param arrival_rate: Интенсивность поступления автомобилей (авто/час)
+        :param service_time: Среднее время обслуживания одного автомобиля (в часах)
+        :param n_posts: Количество постов обслуживания
+        :param queue_limit: Максимальная длина очереди (если None, очередь бесконечна)
+        :param seed: Зерно для генератора случайных чисел (для воспроизводимости)
+        """
         self.sim_time_hours = sim_time_hours
         self.arrival_rate = arrival_rate
         self.service_time = service_time
@@ -10,30 +20,29 @@ class ServiceStation:
         self.queue_limit = queue_limit
         self.seed = seed
         self.stats = {
-            "total": 0,
-            "served": 0,
-            "lost": 0,
-            "wait_time": [],
-            "service_time": []
+            "total": 0,  # Всего поступивших автомобилей
+            "served": 0,  # Обслуженных автомобилей
+            "lost": 0,  # Потерянных автомобилей (из-за переполнения очереди)
+            "wait_time": [],  # Времена ожидания в очереди
+            "service_time": []  # Времена обслуживания
         }
-        self.finished = False  # Флаг завершения симуляции
+        self.finished = False
 
     def car_process(self, env, posts, service_time, queue_limit=None):
         """Процесс обслуживания автомобиля."""
         arrival_time = env.now
-        # Если лимит очереди установлен и очередь уже заполнена, считаем автомобиль отказанным
         if queue_limit is not None and posts.count >= posts.capacity and len(posts.queue) >= queue_limit:
             self.stats["lost"] += 1
             return
 
-        self.stats["served"] += 1
         with posts.request() as request:
             yield request
             wait_time = env.now - arrival_time
             self.stats["wait_time"].append(wait_time)
-            yield env.timeout(random.expovariate(1.0 / service_time))
-            service_duration = env.now - arrival_time - wait_time
+            service_duration = random.expovariate(1.0 / service_time)
+            yield env.timeout(service_duration)
             self.stats["service_time"].append(service_duration)
+            self.stats["served"] += 1
 
     def arrival_generator(self, env, posts, arrival_rate, service_time, queue_limit=None):
         """Генератор поступления автомобилей."""
