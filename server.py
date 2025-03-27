@@ -1,6 +1,9 @@
 import threading
 import asyncio
 import json
+import io
+import base64
+import matplotlib as plt
 from fastapi import FastAPI, File, UploadFile, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -9,6 +12,7 @@ from all_labs.lab_1.first_task import maximize_profit
 from all_labs.lab_2.drown_balls import drown_balls
 from all_labs.lab_3.golden_selection import golden_selection_scipy
 from all_labs.lab_3.newton import newton
+from all_labs.lab_4.frequensy_tests import get_plots
 from all_labs.lab_5.simpy_version.telephone_line import TelephoneLine
 from all_labs.lab_5.simpy_version.service_stantion import ServiceStation
 
@@ -49,6 +53,30 @@ async def extrema_endpoint():
 async def analyze_endpoint():
     result = newton()
     return JSONResponse(content=result)
+
+@app.get("/lab_3/frequensy_tests/")
+def get_frequency_plots():
+    """
+    Эндпоинт для получения графиков частотного теста обоих генераторов.
+    
+    Возвращает:
+      JSON с base64‑кодированными PNG изображениями графиков.
+    """
+    fig1, fig2 = get_plots()
+
+    buf1 = io.BytesIO()
+    fig1.savefig(buf1, format='png')
+    buf1.seek(0)
+    image1 = base64.b64encode(buf1.read()).decode('utf-8')
+    plt.close(fig1)
+
+    buf2 = io.BytesIO()
+    fig2.savefig(buf2, format='png')
+    buf2.seek(0)
+    image2 = base64.b64encode(buf2.read()).decode('utf-8')
+    plt.close(fig2)
+
+    return {"multinomial_plot": image1, "cubic_plot": image2}
 
 
 @app.post("/lab_5/telephone_line_simulation/")
